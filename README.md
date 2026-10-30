@@ -1,136 +1,352 @@
-# Agentic AI Medication Management System
+# 🏥 Medi-AI-Agent: Agentic AI Medication Management System
 
-> A multi-agent AI system for personalized medication management using RAG, voice stress detection, and explainable AI.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue?logo=python&logoColor=white" alt="Python Versions">
+  <img src="https://img.shields.io/badge/Google%20Gemini-Gemini%202.5%20Flash-orange?logo=googlegemini&logoColor=white" alt="Gemini">
+  <img src="https://img.shields.io/badge/LangChain-Orchestration-green?logo=langchain&logoColor=white" alt="LangChain">
+  <img src="https://img.shields.io/badge/FAISS-Vector%20Database-blueviolet" alt="FAISS">
+  <img src="https://img.shields.io/badge/Streamlit-Interactive%20Dashboard-red?logo=streamlit&logoColor=white" alt="Streamlit">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
+</p>
 
-## Features
+<p align="center">
+  <strong>An intelligent multi-agent AI system for personalized medication management, clinical drug interaction detection, adherence trend monitoring, and compassionate patient coaching powered by RAG and Google Gemini.</strong>
+</p>
 
-1. **RAG for Medication Knowledge**: Retrieval-augmented generation using FAISS + PubMed embeddings
-2. **Multi-Agent System**: Coordinated agents (Medication Manager, Nurse Agent, Monitor Agent)
-3. **Explainable AI**: SHAP value visualizations for medication recommendations
-4. **Adherence Simulation**: 14-day patient simulation with baseline comparison
+---
 
-## Project Structure
+## 📌 Table of Contents
+
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Multi-Agent Architecture](#-multi-agent-architecture)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Getting Started](#-getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Environment Setup](#environment-setup)
+- [Usage](#-usage)
+  - [1. Interactive Web Dashboard](#1-interactive-web-dashboard-recommended)
+  - [2. Multi-Agent System Demo](#2-multi-agent-system-demo)
+  - [3. CLI Patient Clinical Check](#3-cli-patient-clinical-check)
+  - [4. Interactive CLI Mode](#4-interactive-cli-mode)
+- [How It Works](#-how-it-works)
+- [Future Roadmap](#-future-roadmap)
+- [Contributing](#-contributing)
+- [License](#-license)
+
+---
+
+## 📖 Overview
+
+Medication non-adherence and unmonitored drug-drug interactions lead to hundreds of thousands of avoidable hospitalizations annually. **Medi-AI-Agent** bridges the gap between complex pharmacological guidelines and daily patient life through a coordinated team of specialized AI agents.
+
+By combining **Retrieval-Augmented Generation (RAG)** over clinical guidelines with algorithmic trend monitoring and generative empathy, Medi-AI-Agent provides:
+- Instant detection of contraindicated medication pairs and food-drug interactions.
+- Time-of-day behavioral pattern analysis to pinpoint when and why doses are missed.
+- Tailored, non-judgmental coaching and reminders that adapt to patient schedules.
+- An intuitive clinical dashboard designed for patients, caregivers, and clinicians.
+
+---
+
+## ✨ Key Features
+
+### 🤖 Multi-Agent Orchestration
+Three specialized, cooperating agents handle distinct aspects of patient care:
+*   **💊 Medication Manager Agent (`src/agents/medication_manager.py`)**:
+    *   Answers medication queries with cited clinical knowledge.
+    *   Detects adverse interactions (e.g., Lisinopril + NSAIDs, Metformin + Alcohol).
+    *   Evaluates patient conditions and allergies before generating recommendations.
+*   **👩‍⚕️ Nurse Agent (`src/agents/nurse_agent.py`)**:
+    *   Analyzes behavioral adherence patterns (morning vs. afternoon vs. evening lapses).
+    *   Delivers warm, empathetic coaching messages using positive reinforcement.
+    *   Formulates personalized daily reminders and habit-linking strategies.
+*   **📈 Monitor Agent (`src/agents/monitor_agent.py`)**:
+    *   Tracks longitudinal adherence trends (`declining`, `improving`, `stable`).
+    *   Triggers early warning alerts for critical non-adherence (<50%) and consecutive missed doses.
+    *   Generates prioritized clinical action recommendations.
+
+### 🔍 Grounded RAG Pipeline
+*   **FAISS Vector Store**: Fast vector similarity search with normalized embeddings.
+*   **Dual-Backend Embedding Generator**: Uses `sentence-transformers/all-MiniLM-L6-v2` with an intelligent, deterministic offline hashing fallback.
+*   **Context Grounding**: Every medical recommendation references indexed clinical knowledge, preventing hallucinations.
+
+### 🖥️ Interactive Web Dashboard
+*   Built with **Streamlit** for real-time patient roster navigation.
+*   Tabbed interface featuring:
+    1.  **Patient Overview**: Chronic conditions, active medications, and calculated adherence.
+    2.  **Drug Interaction Review**: Severity-graded interaction alerts and recommended clinical actions.
+    3.  **Patient Education**: RAG-grounded medication guidance and precautionary warnings.
+    4.  **Adherence Insights**: Visual logs of missed doses, trend indicators, and nurse coaching strategies.
+    5.  **Interactive Q&A**: Real-time natural language query interface for patient questions.
+
+---
+
+## 🏛️ Multi-Agent Architecture
+
+```mermaid
+flowchart TD
+    subgraph Data Layer
+        PData[Synthetic Patient Records\npatients.json & schedules.csv]
+        MGuide[Medical Knowledge Base\nClinical Guidelines]
+        VDB[(FAISS Vector DB\n384-dim Embeddings)]
+    end
+
+    MGuide -->|Chunk & Embed| VDB
+
+    subgraph Agent Core
+        MM[Medication Manager Agent\nKnowledge Retrieval & Safety]
+        NA[Nurse Agent\nAdherence Coaching & Empathy]
+        MA[Monitor Agent\nTrend Tracking & Risk Alerts]
+    end
+
+    PData --> MM
+    PData --> NA
+    PData --> MA
+    VDB <-->|Semantic Search| MM
+
+    subgraph Intelligence & LLM
+        Gemini[Google Gemini API\ngemini-2.5-flash]
+    end
+
+    MM <-->|Prompt + RAG Context| Gemini
+    NA <-->|Empathetic Coaching Prompt| Gemini
+
+    subgraph Interfaces
+        CLI[Terminal CLI Runner\nmain.py]
+        Demo[End-to-End Demo\nrun_full_demo.py]
+        UI[Streamlit Dashboard\nstreamlit_app.py]
+    end
+
+    MM --> UI
+    NA --> UI
+    MA --> UI
+    MM --> CLI
+    NA --> CLI
+    MA --> CLI
+    MM --> Demo
+    NA --> Demo
+    MA --> Demo
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **LLM & Inference** | Google Gemini (`gemini-2.5-flash`), `google-generativeai` |
+| **Agent Orchestration** | LangChain Core, Custom LangChain Gemini Compatibility Shim |
+| **Vector Database & RAG** | FAISS (`faiss-cpu`), Sentence-Transformers (`all-MiniLM-L6-v2`) |
+| **Frontend Dashboard** | Streamlit, Altair |
+| **Data & Simulation** | Pandas, NumPy, Pydantic, Faker |
+| **Runtime & Language** | Python 3.10 – 3.13 |
+
+---
+
+## 📂 Project Structure
 
 ```
 Medi_AI_Agent/
-├── data/                          # Data storage
-│   ├── synthetic_patients/        # Synthea-generated patient records
-│   ├── vector_db/                 # FAISS vector database
-│   └── medical_guidelines/        # PubMed medical guidelines
-├── src/                           # Source code
-│   ├── agents/                    # LangGraph agents
-│   │   ├── medication_manager.py  # Drug interaction agent
-│   │   ├── nurse_agent.py         # Adherence coaching agent
-│   │   └── monitor_agent.py       # Early warning agent
-│   ├── rag/                       # RAG pipeline
-│   │   ├── vector_store.py        # FAISS implementation
-│   │   ├── retriever.py           # Document retrieval
-│   │   └── embeddings.py          # Embedding generation
-│   ├── xai/                       # Explainable AI
-│   │   └── shap_explainer.py      # SHAP visualizations
-│   ├── simulation/                # Adherence simulation
-│   │   ├── patient_simulator.py   # Patient behavior simulation
-│   │   └── baseline_comparison.py # Baseline vs AI comparison
-│   └── utils/                     # Utilities
-│       ├── config.py              # Configuration
-│       └── logger.py              # Logging setup
-├── scripts/                       # Execution scripts
-│   ├── generate_data.py           # Generate synthetic patient data
-│   ├── setup_rag.py               # Setup RAG pipeline
-│   ├── run_simulation.py          # Run adherence simulation
-│   └── visualize_results.py       # Generate result visualizations
-├── tests/                         # Unit tests
-├── figures/                       # Generated figures
-├── results/                       # Experiment results
-├── requirements.txt               # Python dependencies
-├── .env.example                   # Environment variables template
-└── README.md                      # This file
+├── data/
+│   ├── synthetic_patients/        # Patient profiles and medication logs
+│   │   ├── patients.json          # 100 realistic patient profiles
+│   │   ├── summary.json           # Demographic and cohort statistics
+│   │   └── medication_schedules.csv
+│   └── vector_db/                 # FAISS vector store & document metadata
+│       ├── index.faiss
+│       └── documents.pkl
+├── src/
+│   ├── agents/                    # Multi-agent implementations
+│   │   ├── medication_manager.py  # Drug queries & interaction specialist
+│   │   ├── nurse_agent.py         # Empathetic coaching & reminders
+│   │   └── monitor_agent.py       # Algorithmic adherence & risk warnings
+│   ├── rag/                       # RAG Pipeline components
+│   │   ├── embeddings.py          # SentenceTransformer & normalized embeddings
+│   │   ├── retriever.py           # Top-k vector retrieval with threshold fallbacks
+│   │   └── vector_store.py        # FAISS index wrapper
+│   └── utils/
+│       ├── config.py              # Centralized paths and hyperparameters
+│       └── logger.py              # Standardized application logging
+├── scripts/
+│   ├── generate_data.py           # Synthetic patient & schedule generator
+│   ├── replace_patient_names.py   # Cohort personalization utility
+│   └── setup_rag.py               # RAG indexing & validation script
+├── langchain_google_genai.py      # Resilient, rate-limited Gemini adapter
+├── main.py                        # Primary CLI application (interactive & check modes)
+├── run_full_demo.py               # Automated multi-patient demonstration script
+├── streamlit_app.py               # Full-featured Streamlit web application
+├── requirements.txt               # Project dependencies
+├── .env.example                   # Environment configuration template
+├── ARCHITECTURE.md                # Detailed technical architectural documentation
+└── README.md                      # Project documentation
 ```
 
-##  Installation
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Python 3.9+
-- pip
-- Virtual environment (recommended)
 
-### Step-by-Step Setup
+- **Python 3.10 or higher** (Tested up to Python 3.13)
+- **Git**
+- A **Google Gemini API Key** (Get one for free at [Google AI Studio](https://aistudio.google.com/))
 
-1. **Clone or navigate to the project directory**
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Aritra-rickc2004/Medi-AI-Agent.git
+   cd Medi-AI-Agent
+   ```
+
+2. **Create and activate a virtual environment:**
+   ```bash
+   # Windows (PowerShell)
+   python -m venv venv
+   .\venv\Scripts\Activate.ps1
+
+   # macOS / Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Environment Setup
+
+1. **Create your `.env` file:**
+   ```bash
+   # Windows
+   copy .env.example .env
+
+   # macOS / Linux
+   cp .env.example .env
+   ```
+
+2. **Add your Gemini API Key in `.env`:**
+   ```env
+   GOOGLE_API_KEY=your_actual_gemini_api_key_here
+   DEBUG=True
+   LOG_LEVEL=INFO
+   ```
+
+3. **(Optional) Index the RAG Knowledge Base:**
+   *(The repository comes with a pre-indexed vector store; run this to regenerate it with new guidelines)*
+   ```bash
+   python scripts/setup_rag.py
+   ```
+
+---
+
+## 💻 Usage
+
+### 1. Interactive Web Dashboard (Recommended)
+
+Launch the Streamlit clinical dashboard:
 ```bash
-cd e:\Medi_AI_Agent
+streamlit run streamlit_app.py
 ```
+Open your browser at **`http://localhost:8501`** to explore patient records, inspect drug interaction flags, and ask real-time medication questions.
 
-2. **Create and activate virtual environment**
+---
+
+### 2. Multi-Agent System Demo
+
+Run the automated demonstration evaluating multiple patient cohorts:
 ```bash
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+python run_full_demo.py
+```
+*Output preview:*
+```text
+======================================================================
+  AGENTIC AI MEDICATION MANAGEMENT SYSTEM - FULL DEMO
+======================================================================
+👤 PATIENT PROFILE: Aritra Chowdhury (P0001)
+   Age: 21 | Conditions: Asthma, Anxiety
+   Medications: Montelukast, Buspirone
+📊 ADHERENCE RATE: 33.9%
+
+💊 DRUG INTERACTION CHECK (Monitor Agent)
+   ✅ No known drug interactions detected
+
+🤖 MEDICATION INFORMATION (Medication Manager + RAG)
+   Q: What are the key things I should know about Montelukast?
+   A: Montelukast is primarily used to prevent asthma attacks...
+
+💬 ADHERENCE COACHING (Nurse Agent)
+   Pattern: Most doses missed in the afternoon
+   "Hi Aritra! Taking medications consistently can be tricky, especially in the afternoon. 
+   Let's try linking your dose to your afternoon coffee break..."
 ```
 
-3. **Install dependencies**
+---
+
+### 3. CLI Patient Clinical Check
+
+Run a structured comprehensive check for an individual patient ID:
 ```bash
-pip install -r requirements.txt
+python main.py --mode check --patient P0001
 ```
 
-4. **Configure environment variables**
+---
+
+### 4. Interactive CLI Mode
+
+Launch an interactive terminal command center:
 ```bash
-copy .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+python main.py --mode interactive
 ```
+Available CLI commands:
+- `check <patient_id>` — Run comprehensive multi-agent assessment.
+- `ask <question>` — Ask an open-ended medication query.
+- `remind <medication>` — Generate an empathetic reminder.
+- `list` — View available patient IDs and diagnoses.
+- `quit` — Exit the system.
 
-5. **Generate synthetic patient data**
-```bash
-python scripts/generate_data.py --patients 100
-```
+---
 
-6. **Setup RAG pipeline**
-```bash
-python scripts/setup_rag.py
-```
+## 🔬 How It Works
 
-##  Usage
+1. **Patient Context Ingestion**: Patient profiles, chronic conditions, and dose timestamps are retrieved from `data/synthetic_patients/`.
+2. **Deterministic Trend Analysis**: The `MonitorAgent` analyzes timestamp histories without LLM overhead, calculating moving adherence windows and flagging critical streaks (e.g., 3 consecutive missed doses).
+3. **Semantic RAG Retrieval**: When a clinical question or medication verification is triggered, the `MedicationManagerAgent` converts the query into a normalized vector, querying FAISS for top-k relevant clinical guidelines.
+4. **Agent Synthesis**: Relevant guidelines, interaction matrices, and patient context are formatted into structured prompts. Google Gemini (`gemini-2.5-flash`) synthesizes accurate medical responses with source citations.
+5. **Empathetic Coaching Formulation**: The `NurseAgent` assesses the timing of missed doses (e.g., morning vs. afternoon) and generates habit-stacking strategies tailored to the patient's lifestyle.
 
-### Run Multi-Agent System
-```bash
-python src/main.py
-```
+---
 
-### Run Adherence Simulation
-```bash
-python scripts/run_simulation.py --patients 20 --days 14
-```
+## 🗺️ Future Roadmap
 
-### Generate Visualizations
-```bash
-python scripts/visualize_results.py
-```
+- [ ] **Direct Book & PDF Ingestion**: End-to-end ingestion pipeline for multi-chapter pharmacology textbooks directly into FAISS.
+- [ ] **Voice Stress Detection**: Integration of SpeechBrain audio models to detect vocal stress during patient check-in calls.
+- [ ] **FHIR / EHR Interoperability**: Adapters to sync medication schedules with Fast Healthcare Interoperability Resources (FHIR) standards.
+- [ ] **Standalone Desktop Client**: Packaging the engine into a lightweight desktop app via Tauri and ONNX Runtime.
 
-##  Results
+---
 
-Expected improvements:
-- **Adherence Rate**: Baseline 45% → AI System 78%
-- **Stress Detection**: 35% better adherence when stress triggers identified
-- **Patient Trust**: 40% improvement with XAI explanations
+## 🤝 Contributing
 
-##  Citation
+Contributions are welcome! Please follow these steps:
 
-```bibtex
-@article{medi_ai_agent_2025,
-  title={Agentic AI for Medication Management: A Multi-Agent RAG Approach with Voice Stress Detection},
-  author={Your Name},
-  journal={arXiv preprint},
-  year={2025}
-}
-```
+1. Fork the Project repository.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-## License
+---
 
-MIT License
+## 📄 License
 
-##  Contributing
+Distributed under the **MIT License**. See `LICENSE` or repository metadata for more information.
 
-Contributions welcome! Please open an issue or submit a pull request.
+---
 
-## Contact
-
-For questions, please contact [your-email@example.com]
+<p align="center">
+  Developed by <a href="https://github.com/Aritra-rickc2004"><strong>Aritra Chowdhury</strong></a>
+</p>
